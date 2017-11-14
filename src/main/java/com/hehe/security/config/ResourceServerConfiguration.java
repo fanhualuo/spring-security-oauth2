@@ -20,8 +20,8 @@ import javax.servlet.http.HttpServletRequest;
  * @EnableResourceServer   标注配置
  * @EnableGlobalMethodSecurity(prePostEnabled = true)   开启Spring Security的注解
  */
-@Configuration
-@EnableResourceServer
+//@Configuration
+//@EnableResourceServer
 public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
     @Value("${resource.id:spring-boot-application}")

@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/user?useUnicode=true&characterEncoding=UTF8
+    username: root
+    password: anywhere
+
+  redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      pool:
+        min-idle: 2
+        max-idle: 16
+        max-active: 100
+
+
+mybatis:
+  type-aliases-package: com.hehe.security.model
+  mapper-locations: classpath*:mapper/*Mapper.xml
+
+email:
+  host: smtp.163.com
+  username: m15854026443@163.com
+  password: 19960111xie
+
+server:
+  port: 8060
+
