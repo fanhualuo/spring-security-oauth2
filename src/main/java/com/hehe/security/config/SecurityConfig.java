@@ -4,6 +4,7 @@ import com.hehe.security.service.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -21,6 +22,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  * @date 2017/11/7 上午11:51
  * @email xieqinghe@terminus.io
  */
+@Order(50)
 @Configuration
 // Security配置注解，标识其是spring security配置文件
 @EnableWebSecurity
@@ -28,24 +30,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    // 查询用户使用
-
-    private MyUserDetailsService myUserDetailsService;
-
-
-    //配置自定义的用户信息查询接口
-    //还可以添加自定义的加密方式
-    @Autowired
-    public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService());
-    }
+    private static MyUserDetailsService myUserDetailsService=new MyUserDetailsService();
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/test").permitAll()
                 .antMatchers("/oauth/token").permitAll()
+                .antMatchers("/oauth/authorize").permitAll()
                 .and()
                 .csrf().disable();
 
@@ -55,8 +47,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
-
-
     //重写框架的UserDetailsService接口，覆盖
     @Override
     @Bean
@@ -64,27 +54,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new UserDetailsService() {
             @Override
             public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
-//                // 通过用户名获取用户信息
-//                user = accountService.findByName(name);
-//                if (account != null) {
-//                    // 创建spring security安全用户
-//                    User user = new User(account.getName(), account.getPassword(),
-//                            AuthorityUtils.createAuthorityList(account.getRoles()));
-//                    return user;
-//                } else {
-//                    throw new UsernameNotFoundException("用户[" + name + "]不存在");
-//                }
-                return null;
+                // 通过用户名获取用户信息
+                UserDetails user = myUserDetailsService.loadUserByUsername(name);
+                if (user!=null){
+                    return user;
+                } else {
+                    throw new UsernameNotFoundException("用户[" + name + "]不存在");
+                }
             }
         };
 
     }
 
-    @Override
-    @Bean
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
+
+//    @Override
+//    @Bean
+//    public AuthenticationManager authenticationManagerBean() throws Exception {
+//        return super.authenticationManagerBean();
+//    }
 
 
 }

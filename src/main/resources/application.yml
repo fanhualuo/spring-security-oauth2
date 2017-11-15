@@ -11,8 +11,8 @@ spring:
       password: ${REDIS_PASSWORD:}
       pool:
         min-idle: 2
-        max-idle: 16
-        max-active: 100
+        max-idle: 500
+        max-active: 500
 
 
 mybatis:
@@ -22,7 +22,7 @@ mybatis:
 email:
   host: smtp.163.com
   username: m15854026443@163.com
-  password: 19960111xie
+  password: xxxxxxx
 
 server:
   port: 8060

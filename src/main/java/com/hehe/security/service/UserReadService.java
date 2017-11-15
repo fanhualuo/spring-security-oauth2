@@ -15,4 +15,10 @@ public interface UserReadService {
 
     Response<User> findByIdentity(String identity);
 
+    Response<User> findByPhone(String phone);
+
+    Response<User> findByEmail(String email);
+
+    Response<User> findByUserName(String username);
+
 }
