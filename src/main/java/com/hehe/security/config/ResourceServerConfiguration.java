@@ -28,7 +28,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
         // @formatter:off
-        resources.resourceId("user").stateless(true);
+        resources.resourceId("open").stateless(true);
         // @formatter:on
     }
 

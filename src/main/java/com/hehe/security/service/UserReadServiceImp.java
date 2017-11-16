@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserReadServiceImp implements UserReadService {
 
-    public static User user=new User();
+    private static User user=new User();
     static {
         user.setId(1l);
         user.setUsername("hehe");

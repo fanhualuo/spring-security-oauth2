@@ -2,8 +2,11 @@ package com.hehe.security.config;
 
 import com.google.common.collect.Maps;
 import com.hehe.common.event.CoreEventDispatcher;
+import com.hehe.common.util.RespHelper;
 import com.hehe.security.config.granter.MyCompositeTokenGranter;
 import com.hehe.security.config.granter.MyPasswordTokenGranter;
+import com.hehe.security.model.Client;
+import com.hehe.security.service.ClientReadService;
 import com.hehe.security.service.MyUserDetailsService;
 import com.hehe.security.service.UserReadService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +27,10 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.ClientRegistrationException;
+import org.springframework.security.oauth2.provider.NoSuchClientException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.TokenGranter;
@@ -73,6 +79,9 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     private UserReadService userReadService;
 
     @Autowired
+    private ClientReadService clientReadService;
+
+    @Autowired
     private RedisConnectionFactory redisConnectionFactory;
 
     @Autowired
@@ -87,23 +96,35 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     @Autowired
     private DataSource dataSource;
 
-    //配置客户端数据源
+    //配置客户端数据
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-        //配置两个客户端,一个用于password认证一个用于client认证
-        clients.inMemory().withClient("client_1")
-                .resourceIds("user")
-                .authorizedGrantTypes("client_credentials","refresh_token")
-                .scopes("select")
-                .authorities("client")
-                .secret("1234567")
-                .and()
-                .withClient("client_2")
-                .resourceIds("user")
-                .authorizedGrantTypes("password", "refresh_token")
-                .scopes("select")
-                .authorities("client")
-                .secret("1234567");
+
+        clients.withClientDetails(new ClientDetailsService() {
+            @Override
+            public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
+                Client client = RespHelper.or500(clientReadService.findByClientId(clientId));
+                if (client == null) {
+                    throw new NoSuchClientException("No client with requested id: " + clientId);
+                }
+                return client;
+            }
+        });
+
+//        //配置两个客户端,一个用于password认证一个用于client认证
+//        clients.inMemory().withClient("client_1")
+//                .resourceIds("user")
+//                .authorizedGrantTypes("authorization_code","client_credentials","password","refresh_token")
+//                .scopes("select")
+//                .authorities("ROLE_CLIENT")
+//                .secret("1234567")
+//                .and()
+//                .withClient("client_2")
+//                .resourceIds("user")
+//                .authorizedGrantTypes("authorization_code","client_credentials","password","refresh_token")
+//                .scopes("select")
+//                .authorities("ROLE_CLIENT")
+//                .secret("1234567");
     }
 
     /*
@@ -181,6 +202,9 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         return new DefaultOAuth2RequestFactory(clientDetailsService);
     }
 
+    /**
+     *  参考spring源码实现，实现所需要类
+     */
     @Bean
     @Primary
     public DefaultTokenServices tokenServices() {
@@ -205,6 +229,9 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         return tokenServices;
     }
 
+    /**
+     *  参考spring源码实现，实现所需要类
+     */
     private void addUserDetailsService(DefaultTokenServices tokenServices, UserDetailsService userDetailsService) {
         if (userDetailsService != null) {
             PreAuthenticatedAuthenticationProvider provider = new PreAuthenticatedAuthenticationProvider();
@@ -219,8 +246,11 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         return new MyUserDetailsService();
     }
 
-    //code存储方式，授权码模式生成的code，
-    //数据库表为 oauth_code，具体可以查看spring源码
+    /**
+     *  参考spring源码实现
+     *  code存储方式，授权码模式生成的code
+     *  数据库表为 oauth_code，具体可以查看spring源码
+     */
     @Bean
     public AuthorizationCodeServices authorizationCodeServices() {
         return new JdbcAuthorizationCodeServices(dataSource);

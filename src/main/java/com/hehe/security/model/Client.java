@@ -8,6 +8,8 @@ import org.springframework.security.oauth2.provider.client.BaseClientDetails;
  * @date 2017/11/15 上午10:15
  * @email xieqinghe@terminus.io
  */
+@Data
 public class Client extends BaseClientDetails {
     private static final long serialVersionUID = -5530686158966937529L;
+    private Long id;
 }
