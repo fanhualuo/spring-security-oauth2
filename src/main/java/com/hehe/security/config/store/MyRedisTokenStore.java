@@ -252,10 +252,12 @@ public class MyRedisTokenStore implements TokenStore{
                 String key = authenticationKeyGenerator.extractKey(authentication);
                 byte[] authToAccessKey = serializeKey(AUTH_TO_ACCESS + key);
                 byte[] unameKey = serializeKey(UNAME_TO_ACCESS + getApprovalKey(authentication));
+                byte[] clientId =serializeKey(CLIENT_ID_TO_ACCESS + authentication.getOAuth2Request().getClientId());
                 conn.openPipeline();
                 conn.del(authToAccessKey);
                 conn.lRem(unameKey, 1, access);
-                conn.del(serializeKey(CLIENT_ID_TO_ACCESS + authentication.getOAuth2Request().getClientId()));
+                //修改的源码位置 ,原代码conn.lRem(clientId, 1, access)
+                conn.del(clientId);
                 conn.del(serialize(ACCESS + key));
                 conn.closePipeline();
             }
