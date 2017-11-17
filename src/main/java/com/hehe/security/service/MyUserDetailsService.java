@@ -12,8 +12,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by lxg
- * on 2017/2/20.
+ * @author xieqinghe .
+ * @date 2017/11/14 下午4:35
+ * @email xieqinghe@terminus.io
  */
 public class MyUserDetailsService implements UserDetailsService {
 
@@ -21,14 +22,14 @@ public class MyUserDetailsService implements UserDetailsService {
     /**
      * 根据用户名获取登录用户信息
      * @param username
-     * @return
+     * @return  UserDetails
      * @throws UsernameNotFoundException
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         User user=new User();
-        user.setId(1l);
+        user.setId(1L);
         user.setUsername("hehe");
         user.setEmail("qinghe101@qq.com");
         user.setPhone("15854026443");
@@ -36,14 +37,17 @@ public class MyUserDetailsService implements UserDetailsService {
         if(user == null) {
             throw new UsernameNotFoundException("CustomUserDetailsServiceImpl.notFound"+ new Object[]{username}+"Username {0} not found");
         } else {
+            //配置用户角色
             List<GrantedAuthority> authorities = new ArrayList();
             authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+            //是否锁定
             boolean isLocked =false;
             if(!isLocked) {
 
             }
-
-            return new org.springframework.security.core.userdetails.User(user.getId().toString(), user.getPassword(), true, true, true, !isLocked, Collections.unmodifiableList(authorities));
+            return new org.springframework.security.core.userdetails.User(user.getId().toString(),
+                    user.getPassword(), true, true,
+                    true, !isLocked, Collections.unmodifiableList(authorities));
         }
 
     }

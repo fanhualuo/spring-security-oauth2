@@ -7,6 +7,7 @@ import com.hehe.security.config.granter.MyCompositeTokenGranter;
 import com.hehe.security.config.granter.MyPasswordTokenGranter;
 import com.hehe.security.model.Client;
 import com.hehe.security.service.ClientReadService;
+import com.hehe.security.service.MyCilentDetailsService;
 import com.hehe.security.service.MyUserDetailsService;
 import com.hehe.security.service.UserReadService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,32 +101,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 
-        //客户端配置信息，重写ClientDetailsService接口，实现功能
-        clients.withClientDetails(new ClientDetailsService() {
-            @Override
-            public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
-                Client client = RespHelper.or500(clientReadService.findByClientId(clientId));
-                if (client == null) {
-                    throw new NoSuchClientException("No client with requested id: " + clientId);
-                }
-                return client;
-            }
-        });
-
-//        //配置两个客户端,一个用于password认证一个用于client认证，直接配置在内存当中
-//        clients.inMemory().withClient("client_1")
-//                .resourceIds("user")
-//                .authorizedGrantTypes("authorization_code","client_credentials","password","refresh_token")
-//                .scopes("select")
-//                .authorities("ROLE_CLIENT")
-//                .secret("1234567")
-//                .and()
-//                .withClient("client_2")
-//                .resourceIds("user")
-//                .authorizedGrantTypes("authorization_code","client_credentials","password","refresh_token")
-//                .scopes("select")
-//                .authorities("ROLE_CLIENT")
-//                .secret("1234567");
+       clients.withClientDetails(new MyCilentDetailsService(clientReadService));
     }
 
     /*
@@ -137,17 +113,11 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         //密码授权的身份验证管理,必须
-        endpoints.authenticationManager(this.authenticationManager);
+        //endpoints.authenticationManager(this.authenticationManager);
         //自定义token存储方式
         endpoints.tokenStore(tokenStore());
         //认证方式
         endpoints.tokenGranter(tokenGranter(clientDetailsService,tokenServices()));
-
-        //endpoints.accessTokenConverter(accessTokenConverter());
-        //endpoints.userDetailsService(userDetailsService());   //自定义用户存储和操作service（作用？）
-        //endpoints.requestFactory(requestFactory(clientDetailsService));  //自定义应用存储和操作service（作用？）
-        //endpoints.tokenGranter();  //几种授权模式的自定义重写（需要一个授权管理类，和几个自定义获取token类）
-
     }
 
     /**
@@ -194,7 +164,6 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         //5, refresh_token 刷新模式 spring security oauth2实现  自己实现？
         tokenGranters.add(new RefreshTokenGranter(tokenServices, clientDetailsService, requestFactory));
 
-
         return new MyCompositeTokenGranter(tokenGranters,dispatcher);
     }
 
@@ -204,6 +173,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     }
 
     /**
+     *  配置TokenServices参数
      *  参考spring源码实现，实现所需要类
      */
     @Bean

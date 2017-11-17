@@ -5,9 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
 
 /**
@@ -30,16 +29,22 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private static MyUserDetailsService myUserDetailsService=new MyUserDetailsService();
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        super.configure(http);
         http
                 .authorizeRequests()
-                .antMatchers("/oauth/token").permitAll()
-                .antMatchers("/oauth/authorize").permitAll()
+                .antMatchers("/oauth/**").permitAll()
+                .antMatchers("/login").permitAll()
+                .and()
+
+                .formLogin().loginPage("/login.html").defaultSuccessUrl("/success.html").failureUrl("/error.html")
+//                .exceptionHandling()
+//                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
                 .and()
                 .csrf().disable();
+
 
         //csrf()  添加CSRF的支持。使用时默认会激活此选项。
         //disable()   新的配置会覆盖此配置
@@ -47,23 +52,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
-    //重写框架的UserDetailsService接口，覆盖
+    //重写框架的UserDetailsService接口，自定义用户查询接口
     @Override
     @Bean
     public UserDetailsService userDetailsService() {
-        return new UserDetailsService() {
-            @Override
-            public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
-                // 通过用户名获取用户信息
-                UserDetails user = myUserDetailsService.loadUserByUsername(name);
-                if (user!=null){
-                    return user;
-                } else {
-                    throw new UsernameNotFoundException("用户[" + name + "]不存在");
-                }
-            }
-        };
-
+        return new MyUserDetailsService();
     }
 
 

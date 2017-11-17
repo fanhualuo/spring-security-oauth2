@@ -23,12 +23,7 @@ public class UserEventLogs implements EventListener {
 
     @Subscribe
     public void onEveryLogin(UserEventLogsDto userEventLogsDto) {
-        log.info("日志写入");
-        log.info(userEventLogsDto.getTokenRequest().toString());
-        log.info(userEventLogsDto.getGrant().toString());
-        log.info(userEventLogsDto.getDesc());
-        log.info("-------------------");
-
+        log.info("登录日志：token:"+userEventLogsDto.getGrant().toString());
     }
 
 }
