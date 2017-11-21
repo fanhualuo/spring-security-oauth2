@@ -32,7 +32,7 @@ public class ClientReadServiceImp implements ClientReadService {
         client1.setAuthorizedGrantTypes(Sets.newHashSet("authorization_code","client_credentials","password","refresh_token"));
         client1.setScope(Sets.newHashSet("select","update","create"));
         client1.setRegisteredRedirectUri(Sets.newHashSet("http://www.baidu.com"));
-        client1.setResourceIds(Sets.newHashSet("open"));
+        client1.setResourceIds(Sets.newHashSet("resource_1"));
         client1.setAccessTokenValiditySeconds(1209600);
         client1.setRefreshTokenValiditySeconds(31536000);
 
@@ -43,7 +43,7 @@ public class ClientReadServiceImp implements ClientReadService {
         client2.setAuthorizedGrantTypes(Sets.newHashSet("authorization_code","client_credentials","password","refresh_token"));
         client2.setScope(Sets.newHashSet("select","update","create"));
         client2.setRegisteredRedirectUri(Sets.newHashSet("http://www.baidu.com"));
-        client2.setResourceIds(Sets.newHashSet("open"));
+        client2.setResourceIds(Sets.newHashSet("resource_2"));
         client2.setAccessTokenValiditySeconds(1209600);
         client2.setRefreshTokenValiditySeconds(31536000);
     }

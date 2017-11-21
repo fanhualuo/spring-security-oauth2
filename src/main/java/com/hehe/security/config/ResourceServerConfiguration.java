@@ -19,7 +19,6 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * @EnableResourceServer   标注配置
  * @EnableGlobalMethodSecurity(prePostEnabled = true)   开启Spring Security的注解（加不加都可以？？）
  */
-@Order(62)
 @Configuration
 @EnableResourceServer
 public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
@@ -27,24 +26,15 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
-        // @formatter:off
-        resources.resourceId("open").stateless(true);
-        // @formatter:on
+        resources.resourceId("resource_1").stateless(true);
     }
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-
-        // @formatter:off
         http
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
                 .authorizeRequests()
                 .antMatchers("/v1/**").access("#oauth2.hasScope('select')")
                 .antMatchers("/v2/**").permitAll();
-
-        // @formatter:on
     }
 
 }
