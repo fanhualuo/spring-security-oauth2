@@ -1,6 +1,8 @@
 package com.hehe.security.service;
 
+import com.hehe.common.model.Response;
 import com.hehe.security.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +21,8 @@ import java.util.List;
 public class MyUserDetailsService implements UserDetailsService {
 
 
+    @Autowired
+    private UserReadService userReadService;
     /**
      * 根据用户名获取登录用户信息
      * @param username
@@ -29,14 +33,11 @@ public class MyUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         User user=new User();
-        user.setId(1L);
-        user.setUsername("hehe");
-        user.setEmail("qinghe101@qq.com");
-        user.setPhone("15854026443");
-        user.setPassword("8fc4@cf1636f1278457e3dfae");
-        if(user == null) {
+        Response<User> resp= userReadService.findByIdentity(username);
+        if(!resp.isSuccess()||resp.getResult()==null) {
             throw new UsernameNotFoundException("CustomUserDetailsServiceImpl.notFound"+ new Object[]{username}+"Username {0} not found");
         } else {
+            user=resp.getResult();
             //配置用户角色
             List<GrantedAuthority> authorities = new ArrayList();
             authorities.add(new SimpleGrantedAuthority("ROLE_USER"));

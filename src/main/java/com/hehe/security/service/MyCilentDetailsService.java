@@ -2,8 +2,6 @@ package com.hehe.security.service;
 
 import com.hehe.common.util.RespHelper;
 import com.hehe.security.model.Client;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.ClientRegistrationException;

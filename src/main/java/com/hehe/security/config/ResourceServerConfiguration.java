@@ -1,13 +1,10 @@
 package com.hehe.security.config;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 
 
 /**
@@ -19,7 +16,6 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * @EnableResourceServer   标注配置
  * @EnableGlobalMethodSecurity(prePostEnabled = true)   开启Spring Security的注解（加不加都可以？？）
  */
-@Order(62)
 @Configuration
 @EnableResourceServer
 public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
@@ -27,24 +23,15 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
-        // @formatter:off
-        resources.resourceId("open").stateless(true);
-        // @formatter:on
+        resources.resourceId("resource_1").stateless(true);
     }
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-
-        // @formatter:off
         http
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
                 .authorizeRequests()
                 .antMatchers("/v1/**").access("#oauth2.hasScope('select')")
                 .antMatchers("/v2/**").permitAll();
-
-        // @formatter:on
     }
 
 }
