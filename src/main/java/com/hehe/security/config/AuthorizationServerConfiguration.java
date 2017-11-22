@@ -55,7 +55,8 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     @Autowired
     AuthenticationManager authenticationManager;
 
-    @Override // 配置框架应用上述实现
+    // 配置框架应用
+    @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
 
         //密码授权的身份验证管理,必须(没有这个参数，spring自带授权没有password模式，参看源码)
@@ -74,5 +75,6 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         TokenStore tokenStore=new MyRedisTokenStore(redisConnectionFactory);
         return tokenStore;
     }
+
 
 }
