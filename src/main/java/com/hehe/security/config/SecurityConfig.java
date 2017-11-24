@@ -7,9 +7,11 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 
 /**
@@ -26,15 +28,28 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        // @formatter:off
         http
                 .authorizeRequests()
-                .antMatchers("/oauth/**").permitAll()
+                .antMatchers("/login.html").permitAll()
+                .anyRequest().hasRole("ROLE_USER")
                 .and()
-                .httpBasic().realmName("OAuth Server")
+                .exceptionHandling()
+                .accessDeniedPage("/login.html?authorization_error=true")
                 .and()
+                // TODO: put CSRF protection back into this endpoint
                 .csrf()
-                .disable();
-
+                .requireCsrfProtectionMatcher(new AntPathRequestMatcher("/oauth/authorize"))
+                .disable()
+                .logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login.html")
+                .and()
+                .formLogin()
+                .loginProcessingUrl("/login")
+                .failureUrl("/login.html?authentication_error=true")
+                .loginPage("/login.html");
+        // @formatter:on
     }
 
 
@@ -50,6 +65,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
+    }
+
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers("/webjars/**", "/images/**", "/oauth/uncache_approvals", "/oauth/cache_approvals");
     }
 
 }

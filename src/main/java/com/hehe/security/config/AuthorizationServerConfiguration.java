@@ -4,6 +4,7 @@ import com.hehe.security.config.store.MyRedisTokenStore;
 import com.hehe.security.service.ClientReadService;
 import com.hehe.security.service.MyCilentDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -38,7 +39,6 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     //配置客户端数据
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-
         clients.withClientDetails(new MyCilentDetailsService(clientReadService));
     }
 
@@ -53,7 +53,8 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     }
 
     @Autowired
-    AuthenticationManager authenticationManager;
+    @Qualifier("authenticationManagerBean")
+    private AuthenticationManager authenticationManager;
 
     @Override // 配置框架应用上述实现
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
@@ -62,6 +63,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         endpoints.authenticationManager(authenticationManager);
         //自定义token存储方式
         endpoints.tokenStore(tokenStore());
+        //endpoints.userApprovalHandler()
     }
 
     /**
